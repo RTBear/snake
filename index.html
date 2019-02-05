@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Snake Game</title>
+    <meta name="description" content="This is a simple implementation of the classic snake game.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+    <h1>Snake</h1>
+    <hr>
+    <div class="row">
+
+        <div id="main-content" class="col-xs-9">
+            <canvas id="game-canvas" width="500" height="500"></canvas>
+        </div>
+        <div id="side-content" class="col-xs-3">
+            <div class="well">
+                <ol id="high-scores">
+                    <li>test0</li>
+                    <li>test1</li>
+                    <li>test2</li>
+                    <li>test3</li>
+                    <li>test4</li>
+                    <li>test4</li>
+                    <li>test4</li>
+                    <li>test4</li>
+                    <li>test4</li>
+                </ol>
+            </div>
+            <button id="newgame" class="btn button-primary">New Game</button>
+            <hr>
+            <p class="text-center">Created for CS 5410</p>
+            <p class="text-center">Ryan Mecham | A01839282</p>
+        </div>
+    </div>
+
+    <script>
+        let SnakeGame = {};
+    </script>
+    <script src="./scripts/input.js"></script>
+    <script src="./scripts/graphics.js"></script>
+    <script src="./scripts/driver.js"></script>
+    
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+body {
+    padding: 15px;
+}
+
+#high-scores {
+    height: 100px;
+    overflow-y: scroll;
+    margin-left: -15px;
+}
+
+/* #main-content {
+    border-right: 1px solid #efefef;
+} */
+
+#newgame {
+    width: 100%;
+    color: #fff;
+    background-color: #384660;
+    border-color: #2f3a50;
+}
+
+#newgame:hover {
+    color: #fff;
+    background-color: #252f40;
+    border-color: #181e29;
+}
+
+#game-canvas {
+    width: 500px;
+    height: 500px;
+    border-style: solid;
+    border-width: 10px;
+    display: block;
+    margin: 0 auto;
+    background-color: darkgray;
+}
