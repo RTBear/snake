@@ -19,7 +19,7 @@ SnakeGame.main = (function (graphics) {
     const INITIAL_WORM_LEN = 1;
     const APPLE_INCR_LEN = 3;
     const NUM_APPLES = 1;
-    const MOVE_BUFFER_LEN = 12;
+    const MOVE_BUFFER_LEN = 1;
 
     //gameplay globals
     var SNAKES = []//array of snake objects
@@ -78,11 +78,11 @@ SnakeGame.main = (function (graphics) {
         snake.carryOver = 0;
 
         snake.updatePosition = function (expand) {
-            console.log(snake.recentMoves)
+            // console.log(snake.recentMoves)
             accumTime = (g_elapsedTime + snake.carryOver);
-            console.log('elapsedTime:', g_elapsedTime)
-            console.log('carryover:', snake.carryOver);
-            console.log('accumtime:', accumTime);
+            // console.log('elapsedTime:', g_elapsedTime)
+            // console.log('carryover:', snake.carryOver);
+            // console.log('accumtime:', accumTime);
             if (accumTime >= snake.moveRate) {
                 snake.carryOver -= snake.moveRate;
                 if (snake.recentMoves.length > 0) {
@@ -92,7 +92,7 @@ SnakeGame.main = (function (graphics) {
                     }
 
                     if (snake.direction == UP) {
-                        console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
+                        // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
                         snake.setPositionY(snake.position.y - CELL_SIZE)
                         snake.setPositionX(Math.floor(snake.position.x))
                     } else if (snake.direction == RIGHT) {
@@ -153,16 +153,16 @@ SnakeGame.main = (function (graphics) {
     function onKeyDown(e) {
         // for (var snake of SNAKES) {
         snake = SNAKES[0];//for testing
-        if (e.keyCode === KeyEvent.DOM_VK_UP && (snake.direction != DOWN || snake.recentMoves.length > 0 && snake.recentMoves[0] != DOWN)) {
+        if (e.keyCode === KeyEvent.DOM_VK_UP && snake.direction != DOWN) {
             // console.log('UP');
             snake.setRecentMoves(UP);
-        } else if (e.keyCode === KeyEvent.DOM_VK_RIGHT && (snake.direction != LEFT || snake.recentMoves.length > 0 && snake.recentMoves[0] != LEFT)) {
+        } else if (e.keyCode === KeyEvent.DOM_VK_RIGHT && snake.direction != LEFT) {
             // console.log('RIGHT');
             snake.setRecentMoves(RIGHT);
-        } else if (e.keyCode === KeyEvent.DOM_VK_DOWN && (snake.direction != UP || snake.recentMoves.length > 0 && snake.recentMoves[0] != UP)) {
+        } else if (e.keyCode === KeyEvent.DOM_VK_DOWN && snake.direction != UP) {
             // console.log('DOWN');
             snake.setRecentMoves(DOWN);
-        } else if (e.keyCode === KeyEvent.DOM_VK_LEFT && (snake.direction != RIGHT || snake.recentMoves.length > 0 && snake.recentMoves[0] != RIGHT)) {
+        } else if (e.keyCode === KeyEvent.DOM_VK_LEFT && snake.direction != RIGHT) {
             // console.log('LEFT');
             snake.setRecentMoves(LEFT);
         }
