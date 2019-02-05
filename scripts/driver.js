@@ -53,8 +53,15 @@ SnakeGame.main = (function (graphics) {
         }
 
         //"setters"
-        snake.setPositionX = function (pos) { snake.position.x = pos; }
-        snake.setPositionY = function (pos) { snake.position.y = pos; }
+        snake.setPositionX = function (pos) {
+            snake.position.x = pos;
+            console.log(pos,pos/CELL_SIZE)
+            
+        }
+        snake.setPositionY = function (pos) {
+            snake.position.y = pos;
+            console.log(pos,pos/CELL_SIZE)
+        }
         snake.setDirection = function (dir) { snake.direction = dir; }
         snake.setRecentMoves = function (dir) {
             snake.recentMoves.push(dir);
@@ -86,29 +93,26 @@ SnakeGame.main = (function (graphics) {
             if (accumTime >= snake.moveRate) {
                 snake.carryOver -= snake.moveRate;
                 if (snake.recentMoves.length > 0) {
-                    snake.setDirection(snake.recentMoves[0]);
-                    if (snake.recentMoves.length > 1) {
-                        snake.recentMoves.shift();
-                    }
+                    snake.setDirection(snake.recentMoves.shift());
+                }
 
-                    if (snake.direction == UP) {
-                        // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
-                        snake.setPositionY(snake.position.y - CELL_SIZE)
-                        snake.setPositionX(Math.floor(snake.position.x))
-                    } else if (snake.direction == RIGHT) {
-                        snake.setPositionX(snake.position.x + CELL_SIZE)
-                        snake.setPositionY(Math.floor(snake.position.y))
-                    } else if (snake.direction == DOWN) {
-                        snake.setPositionY(snake.position.y + CELL_SIZE)
-                        snake.setPositionX(Math.floor(snake.position.x))
-                    } else if (snake.direction == LEFT) {
-                        snake.setPositionX(snake.position.x - CELL_SIZE)
-                        snake.setPositionY(Math.floor(snake.position.y))
-                    }
-                    if (!expand) {
-                        //remove tail
-                        // snake.tail = null;
-                    }
+                if (snake.direction == UP) {
+                    // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
+                    snake.setPositionY(snake.position.y - CELL_SIZE)
+                    snake.setPositionX(Math.floor(snake.position.x))
+                } else if (snake.direction == RIGHT) {
+                    snake.setPositionX(snake.position.x + CELL_SIZE)
+                    snake.setPositionY(Math.floor(snake.position.y))
+                } else if (snake.direction == DOWN) {
+                    snake.setPositionY(snake.position.y + CELL_SIZE)
+                    snake.setPositionX(Math.floor(snake.position.x))
+                } else if (snake.direction == LEFT) {
+                    snake.setPositionX(snake.position.x - CELL_SIZE)
+                    snake.setPositionY(Math.floor(snake.position.y))
+                }
+                if (!expand) {
+                    //remove tail
+                    // snake.tail = null;
                 }
             } else {
                 snake.carryOver += g_elapsedTime;
@@ -128,18 +132,23 @@ SnakeGame.main = (function (graphics) {
         for (i = 0; i < GAME_HEIGHT; i++) {
             var row = [];
             for (j = 0; j < GAME_WIDTH; j++) {
-                row.push({ contents: null })
+                row.push({ content: null })
             }
             GAME_GRID.push(row);
         }
         console.log(GAME_GRID)
+        var x = 10;
+        var y = 5;
+
+        GAME_GRID[x][y].content = 'snake';
+
         p1 = {
             strokeColor: 'rgb(1, 196, 24)',
             fillColor: 'rgb(0, 229, 26)',
             direction: null,
             position: {
-                x: 50,//TODO: make this random
-                y: 50,//TODO: make this random
+                x: x * CELL_SIZE,//TODO: make this random
+                y: y * CELL_SIZE,//TODO: make this random
             },
             moveRate: 150
 

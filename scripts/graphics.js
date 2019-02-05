@@ -8,6 +8,10 @@ SnakeGame.graphics = (function () {
         context.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+    function drawBoard(board){
+        
+    }
+
     function drawRectangle(spec) {
         // specExample {
         //     strokeStyle = 'rgba(0, 0, 255, 1)',
