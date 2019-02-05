@@ -16,10 +16,13 @@ SnakeGame.main = (function (graphics) {
 
     //gameplay constants
     const SPAWN_EDGE_PADDING = 5;
-    const INITIAL_WORM_LEN = 1;
+    const NUM_SNAKES = 1;
+    const INITIAL_SNAKE_LEN = 1;
     const APPLE_INCR_LEN = 3;
     const NUM_APPLES = 1;
+    const NUM_WALLS = 1500;
     const MOVE_BUFFER_LEN = 1;
+
 
     //gameplay globals
     var SNAKES = []//array of snake objects
@@ -55,12 +58,12 @@ SnakeGame.main = (function (graphics) {
         //"setters"
         snake.setPositionX = function (pos) {
             snake.position.x = pos;
-            console.log(pos,pos/CELL_SIZE)
-            
+            console.log(pos, pos / CELL_SIZE)
+
         }
         snake.setPositionY = function (pos) {
             snake.position.y = pos;
-            console.log(pos,pos/CELL_SIZE)
+            console.log(pos, pos / CELL_SIZE)
         }
         snake.setDirection = function (dir) { snake.direction = dir; }
         snake.setRecentMoves = function (dir) {
@@ -70,17 +73,17 @@ SnakeGame.main = (function (graphics) {
             }
         }
 
-        snake.bodySegment = function () {
-            return {
-                strokeStyle: snake.strokeColor,
-                fillStyle: snake.fillColor,
-                lineWidth: 3,
-                x: snake.position.x,
-                y: snake.position.y,
-                w: CELL_WIDTH,
-                h: CELL_HEIGHT
-            }
-        }
+        // snake.bodySegment = function () {
+        //     return {
+        //         strokeStyle: snake.strokeColor,
+        //         fillStyle: snake.fillColor,
+        //         lineWidth: 3,
+        //         x: snake.position.x,
+        //         y: snake.position.y,
+        //         w: CELL_WIDTH,
+        //         h: CELL_HEIGHT
+        //     }
+        // }
 
         snake.carryOver = 0;
 
@@ -121,6 +124,31 @@ SnakeGame.main = (function (graphics) {
         return snake;
     }
 
+    //array shuffle from stack overflow (https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array)
+    function arrayShuffle(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    }
+
+    //from the mdn docs (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random)
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+
     function clear_game() {
         SNAKES = [];
         window.removeEventListener('keydown', onKeyDown);
@@ -129,32 +157,70 @@ SnakeGame.main = (function (graphics) {
     function init() {
         clear_game();
         GAME_GRID = []
+        let grid_init = [];
+        let num_blank_spaces = (GAME_HEIGHT * GAME_WIDTH) - NUM_APPLES - NUM_WALLS;//not factoring in snake len because I will add these in after shuffle
+        for (i = 0; i < num_blank_spaces; i++) {
+            grid_init.push({ content: 'empty' });
+        }
+        for (i = 0; i < NUM_APPLES; i++) {
+            grid_init.push({ content: 'apple' });
+        }
+        for (i = 0; i < NUM_WALLS; i++) {
+            grid_init.push({ content: 'wall' });
+        }
+        //shuffle what I have so far
+        grid_init = arrayShuffle(grid_init);
+
         for (i = 0; i < GAME_HEIGHT; i++) {
             var row = [];
             for (j = 0; j < GAME_WIDTH; j++) {
-                row.push({ content: null })
+                row.push(grid_init.shift());
             }
             GAME_GRID.push(row);
         }
-        console.log(GAME_GRID)
-        var x = 10;
-        var y = 5;
+        // console.log(GAME_GRID)
 
-        GAME_GRID[x][y].content = 'snake';
-
+        //place snake in after shuffle so it easier to keep track of :)
         p1 = {
-            strokeColor: 'rgb(1, 196, 24)',
-            fillColor: 'rgb(0, 229, 26)',
+            strokeColor: 'rgb(1, 196, 24)',//not used
+            fillColor: 'rgb(0, 229, 26)',//not used
             direction: null,
             position: {
-                x: x * CELL_SIZE,//TODO: make this random
-                y: y * CELL_SIZE,//TODO: make this random
+                x: getRandomInt(GAME_WIDTH),
+                y: getRandomInt(GAME_HEIGHT)
             },
             moveRate: 150
 
         }
+        //make sure snake is not placed on another object
+        console.log('gg', GAME_GRID[p1.position.x][p1.position.y])
+        // console.log(getRandomInt(GAME_WIDTH));
+        if (num_blank_spaces < 1) {
+            console.log('Not enough space on board for snake.');
+            exit();
+        }
+        let insert_tolerance = 15;
+        while (GAME_GRID[p1.position.x][p1.position.y].content != 'empty') {
+            p1.position.x = getRandomInt(GAME_WIDTH);
+            p1.position.y = getRandomInt(GAME_HEIGHT);
+            insert_tolerance--;
+
+            if (insert_tolerance < 1) {//place in first open space
+                console.log('Unable to find random available space.')
+                for (let i = 0; i < GAME_WIDTH; i++) {
+                    for (let j = 0; j < GAME_HEIGHT; j++) {
+                        if (GAME_GRID[i][j].content === 'empty') {
+                            p1.position.x = i;
+                            p1.position.y = j;
+                        }
+                    }
+                }
+            }
+        }
+
+        GAME_GRID[p1.position.x][p1.position.y].content = 'snake';
         SNAKES.push(Snake(p1))
-        // window.addEventListener('keydown', onKeyDown);
+
         window.addEventListener('keydown', onKeyDown);
         requestAnimationFrame(gameLoop);
     }
@@ -187,28 +253,8 @@ SnakeGame.main = (function (graphics) {
 
     function render() {
         graphics.clear();
-        // graphics.context.clear()
-        // graphics.context.save();
-
-        // graphics.context.strokeStyle = 'rgba(0, 0, 255, 1)';
-        // graphics.context.lineWidth = 3;
-        // graphics.context.shadowColor = 'rgba(255, 0, 0, 1)';
-        // graphics.context.shadowBlur = 10;
-        // graphics.context.strokeRect(
-        //     graphics.canvas.width / 4 + 0.5, graphics.canvas.height / 4 + 0.5,
-        //     graphics.canvas.width / 2, graphics.canvas.height / 2);
-
-        // specExample {
-        //     strokeStyle = 'rgba(0, 0, 255, 1)';
-        //     fillStyle = 'rgba(0, 0, 255, 1)';
-        //     lineWidth = 5;
-        //     x = canvas.width / 4 + 0.5;
-        //     y = canvas.height / 4 + 0.5;
-        //     w = canvas.width / 2;
-        //     h = canvas.height / 2;
-        // }
-        // console.log(SNAKES[0])
-        graphics.drawRectangle(SNAKES[0].bodySegment());
+        graphics.drawBoard(GAME_GRID, { w: GAME_WIDTH, h: GAME_HEIGHT }, CELL_SIZE);
+        // graphics.drawRectangle(SNAKES[0].bodySegment());
         graphics.context.restore();
     }
 
