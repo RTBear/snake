@@ -15,21 +15,18 @@ SnakeGame.main = (function (graphics) {
     const CELL_SIZE = CELL_WIDTH;//only square game boards allowed for now :)
 
     //gameplay constants
-    const SPAWN_EDGE_PADDING = 5;
     const NUM_SNAKES = 1;
     const INITIAL_SNAKE_LEN = 1;
     const APPLE_INCR_LEN = 3;
     const NUM_APPLES = 1;
-    const NUM_WALLS = 1500;
+    const NUM_WALLS = 15;
     const MOVE_BUFFER_LEN = 1;
 
 
     //gameplay globals
     var SNAKES = []//array of snake objects
-    var APPLES = []//array of snake objects
+    // var APPLES = []//array of apple objects
     var GAME_GRID = null
-
-
 
     //directions
     const UP = 'up';
@@ -42,28 +39,61 @@ SnakeGame.main = (function (graphics) {
         var snake = {};
 
         console.log(spec)
-        console.log(spec.position.x)
+        console.log(spec.position.x,spec.position.y)
         //"getters"
         snake.strokeColor = spec.strokeColor;
         snake.fillColor = spec.fillColor;
         snake.direction = spec.direction;
         snake.moveRate = spec.moveRate;
         snake.recentMoves = [];
+        snake.growCounter = 0; //TODO: I realize now that if this was let growCounter (instead of snake.growCounter) it could be private... then i just return an object with the public variables/functions.
+        snake.score = 0;
 
         snake.position = {
             x: spec.position.x,
             y: spec.position.y
         }
 
+        snake.checkNextMove = function(x,y){
+            // console.log('next: ',GAME_GRID[x][y].content)
+            if(x < 0 || y < 0 || x >= GAME_WIDTH || y >= GAME_HEIGHT || GAME_GRID[x][y].content == 'wall' || GAME_GRID[x][y].content == 'snake'){
+                //gameover
+                console.log('GAME OVER');
+            }else if(GAME_GRID[x][y].content == 'apple'){
+                snake.growCounter += APPLE_INCR_LEN;
+                snake.score += APPLE_INCR_LEN;
+
+                generateApple();
+            }
+        }
+
         //"setters"
         snake.setPositionX = function (pos) {
+            let oldPos = snake.position.x;
             snake.position.x = pos;
-            console.log(pos, pos / CELL_SIZE)
+            snake.checkNextMove(snake.position.x,snake.position.y);
+            
+            // console.log(pos, pos / CELL_SIZE)
+            if(snake.growCounter <= 0){
+                GAME_GRID[oldPos][snake.position.y].content = 'empty';
+            }else if(snake.growCounter > 0){
+                snake.growCounter--;
+            }
+            GAME_GRID[snake.position.x][snake.position.y].content = 'snake';
 
         }
         snake.setPositionY = function (pos) {
+            let oldPos = snake.position.y;
             snake.position.y = pos;
-            console.log(pos, pos / CELL_SIZE)
+            snake.checkNextMove(snake.position.x,snake.position.y);
+
+            // console.log(pos, pos / CELL_SIZE)
+            if(snake.growCounter <= 0){
+                GAME_GRID[snake.position.x][oldPos].content = 'empty';
+            }else if(snake.growCounter > 0){
+                snake.growCounter--;
+            }
+            GAME_GRID[snake.position.x][snake.position.y].content = 'snake';
         }
         snake.setDirection = function (dir) { snake.direction = dir; }
         snake.setRecentMoves = function (dir) {
@@ -73,20 +103,7 @@ SnakeGame.main = (function (graphics) {
             }
         }
 
-        // snake.bodySegment = function () {
-        //     return {
-        //         strokeStyle: snake.strokeColor,
-        //         fillStyle: snake.fillColor,
-        //         lineWidth: 3,
-        //         x: snake.position.x,
-        //         y: snake.position.y,
-        //         w: CELL_WIDTH,
-        //         h: CELL_HEIGHT
-        //     }
-        // }
-
         snake.carryOver = 0;
-
         snake.updatePosition = function (expand) {
             // console.log(snake.recentMoves)
             accumTime = (g_elapsedTime + snake.carryOver);
@@ -101,17 +118,17 @@ SnakeGame.main = (function (graphics) {
 
                 if (snake.direction == UP) {
                     // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
-                    snake.setPositionY(snake.position.y - CELL_SIZE)
-                    snake.setPositionX(Math.floor(snake.position.x))
+                    snake.setPositionY(snake.position.y - 1)
+                    // snake.setPositionX(Math.floor(snake.position.x))
                 } else if (snake.direction == RIGHT) {
-                    snake.setPositionX(snake.position.x + CELL_SIZE)
-                    snake.setPositionY(Math.floor(snake.position.y))
+                    snake.setPositionX(snake.position.x + 1)
+                    // snake.setPositionY(Math.floor(snake.position.y))
                 } else if (snake.direction == DOWN) {
-                    snake.setPositionY(snake.position.y + CELL_SIZE)
-                    snake.setPositionX(Math.floor(snake.position.x))
+                    snake.setPositionY(snake.position.y + 1)
+                    // snake.setPositionX(Math.floor(snake.position.x))
                 } else if (snake.direction == LEFT) {
-                    snake.setPositionX(snake.position.x - CELL_SIZE)
-                    snake.setPositionY(Math.floor(snake.position.y))
+                    snake.setPositionX(snake.position.x - 1)
+                    // snake.setPositionY(Math.floor(snake.position.y))
                 }
                 if (!expand) {
                     //remove tail
@@ -122,6 +139,13 @@ SnakeGame.main = (function (graphics) {
             }
         }
         return snake;
+    }
+
+    function updateScores(){
+        let scoreDiv = document.getElementById('scores');
+        for(let snake of SNAKES){
+            scoreDiv.innerHTML = '<p class="text-center">Score: <span id="score">'+snake.score+'</span></p>'
+        }
     }
 
     //array shuffle from stack overflow (https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array)
@@ -152,6 +176,31 @@ SnakeGame.main = (function (graphics) {
     function clear_game() {
         SNAKES = [];
         window.removeEventListener('keydown', onKeyDown);
+    }
+
+    function generateApple(){
+        let x = getRandomInt(GAME_WIDTH);
+        let y = getRandomInt(GAME_HEIGHT);
+
+        let insert_tolerance = 15;
+        while (GAME_GRID[x][y].content != 'empty') {
+            x = getRandomInt(GAME_WIDTH);
+            y = getRandomInt(GAME_HEIGHT);
+            insert_tolerance--;
+
+            if (insert_tolerance < 1) {//place in first open space
+                console.log('Unable to find random available space.')
+                for (let i = 0; i < GAME_WIDTH; i++) {
+                    for (let j = 0; j < GAME_HEIGHT; j++) {
+                        if (GAME_GRID[i][j].content === 'empty') {
+                            x = i;
+                            y = j;
+                        }
+                    }
+                }
+            }
+        }
+        GAME_GRID[x][y].content = 'apple';
     }
 
     function init() {
@@ -245,6 +294,7 @@ SnakeGame.main = (function (graphics) {
     }
 
     function update() {
+        updateScores();
         for (var snake of SNAKES) {
             snake.updatePosition();
             // console.log(snake.position)
@@ -254,7 +304,6 @@ SnakeGame.main = (function (graphics) {
     function render() {
         graphics.clear();
         graphics.drawBoard(GAME_GRID, { w: GAME_WIDTH, h: GAME_HEIGHT }, CELL_SIZE);
-        // graphics.drawRectangle(SNAKES[0].bodySegment());
         graphics.context.restore();
     }
 
