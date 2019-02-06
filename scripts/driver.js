@@ -49,13 +49,17 @@ SnakeGame.main = (function (graphics) {
         snake.growCounter = 0; //TODO: I realize now that if this was let growCounter (instead of snake.growCounter) it could be private... then i just return an object with the public variables/functions.
         snake.score = 0;
 
-        snake.position = {
+        snake.position = {//position of HEAD
             x: spec.position.x,
             y: spec.position.y
         }
 
-        snake.checkNextMove = function(x,y){
+        snake.body = [];//array of snake segments
+
+        snake.checkNextMove = function(move){
             // console.log('next: ',GAME_GRID[x][y].content)
+            x = move.x;
+            y = move.y;
             if(x < 0 || y < 0 || x >= GAME_WIDTH || y >= GAME_HEIGHT || GAME_GRID[x][y].content == 'wall' || GAME_GRID[x][y].content == 'snake'){
                 //gameover
                 console.log('GAME OVER');
@@ -71,11 +75,18 @@ SnakeGame.main = (function (graphics) {
         snake.setPositionX = function (pos) {
             let oldPos = snake.position.x;
             snake.position.x = pos;
-            snake.checkNextMove(snake.position.x,snake.position.y);
+            let nextMove = {x:snake.position.x,y:snake.position.y};
+            snake.checkNextMove(nextMove);
             
+            snake.body.push(nextMove);
+
             // console.log(pos, pos / CELL_SIZE)
             if(snake.growCounter <= 0){
-                GAME_GRID[oldPos][snake.position.y].content = 'empty';
+                let tail = snake.body[0];
+                // console.log(snake.body);
+                // exit();
+                GAME_GRID[tail.x][tail.y].content = 'empty';
+                snake.body.shift();
             }else if(snake.growCounter > 0){
                 snake.growCounter--;
             }
@@ -85,11 +96,17 @@ SnakeGame.main = (function (graphics) {
         snake.setPositionY = function (pos) {
             let oldPos = snake.position.y;
             snake.position.y = pos;
-            snake.checkNextMove(snake.position.x,snake.position.y);
+            let nextMove = {x:snake.position.x,y:snake.position.y};
+            snake.checkNextMove(nextMove);
 
+            snake.body.push(nextMove);
             // console.log(pos, pos / CELL_SIZE)
             if(snake.growCounter <= 0){
-                GAME_GRID[snake.position.x][oldPos].content = 'empty';
+                let tail = snake.body[0];
+                // console.log(snake.body);
+                // exit();
+                GAME_GRID[tail.x][tail.y].content = 'empty';
+                snake.body.shift();
             }else if(snake.growCounter > 0){
                 snake.growCounter--;
             }
@@ -114,8 +131,13 @@ SnakeGame.main = (function (graphics) {
                 snake.carryOver -= snake.moveRate;
                 if (snake.recentMoves.length > 0) {
                     snake.setDirection(snake.recentMoves.shift());
+                    console.log('-------------------------------------------------------------------')
+                    console.log(snake.body)
+                    // exit()
+                }else{
+                    // console.log('NOOOOOO');
                 }
-
+                
                 if (snake.direction == UP) {
                     // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
                     snake.setPositionY(snake.position.y - 1)
@@ -129,10 +151,6 @@ SnakeGame.main = (function (graphics) {
                 } else if (snake.direction == LEFT) {
                     snake.setPositionX(snake.position.x - 1)
                     // snake.setPositionY(Math.floor(snake.position.y))
-                }
-                if (!expand) {
-                    //remove tail
-                    // snake.tail = null;
                 }
             } else {
                 snake.carryOver += g_elapsedTime;
@@ -268,7 +286,8 @@ SnakeGame.main = (function (graphics) {
         }
 
         GAME_GRID[p1.position.x][p1.position.y].content = 'snake';
-        SNAKES.push(Snake(p1))
+        SNAKES.push(Snake(p1));
+        SNAKES[0].body.push({x:p1.position.x,y:p1.position.y});
 
         window.addEventListener('keydown', onKeyDown);
         requestAnimationFrame(gameLoop);
@@ -298,6 +317,8 @@ SnakeGame.main = (function (graphics) {
         for (var snake of SNAKES) {
             snake.updatePosition();
             // console.log(snake.position)
+
+            // console.log(snake.body.length)
         }
     }
 
