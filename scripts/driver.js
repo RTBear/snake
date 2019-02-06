@@ -180,7 +180,7 @@ SnakeGame.main = (function (graphics) {
             console.log(snake)
             HIGH_SCORES.push(snake.score);
         }
-        HIGH_SCORES.sort();
+        HIGH_SCORES.sort(function(a,b){return a-b;});//default sort is alphabetical
         HIGH_SCORES.reverse();
         let highscoresDiv = document.getElementById('high-scores');
         while (highscoresDiv.firstChild) {
@@ -392,12 +392,12 @@ SnakeGame.main = (function (graphics) {
     }
 
     function gameLoop() {
+        if (!GAME_OVER) {
         g_elapsedTime = performance.now() - g_lastTimeStamp;
         update();
         render();
 
         g_lastTimeStamp = performance.now();
-        if (!GAME_OVER) {
             requestAnimationFrame(gameLoop);
         }
     }
