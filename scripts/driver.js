@@ -21,7 +21,7 @@ SnakeGame.main = (function (graphics) {
     const NUM_WALLS = 15;
     const MOVE_BUFFER_LEN = 1;
     const MOVE_SPEED = 1;
-    const MS_PER_MOVE = 1000;
+    const MS_PER_MOVE = 150;
 
     //gameplay globals
     var SNAKES = [];//array of snake objects
@@ -141,9 +141,9 @@ SnakeGame.main = (function (graphics) {
             }
             if (snake.direction != null) {
                 let accumTime = (g_elapsedTime + snake.carryOver);
-                console.log('elapsedTime:', g_elapsedTime)
-                console.log('carryover:', snake.carryOver);
-                console.log('accumtime:', accumTime);
+                // console.log('elapsedTime:', g_elapsedTime)
+                // console.log('carryover:', snake.carryOver);
+                // console.log('accumtime:', accumTime);
                 // console.log(snake.moveRate)
                 if (accumTime >= snake.moveRate) {
                     // console.log('move')
