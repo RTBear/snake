@@ -38,9 +38,9 @@ SnakeGame.main = (function (graphics) {
 
 
     var Snake = function (spec) {
-        var snake = {};
+        let snake = {};
 
-        console.log(spec)
+        console.log('spec',spec)
         console.log(spec.position.x, spec.position.y)
         //"getters"
         snake.strokeColor = spec.strokeColor;
@@ -178,6 +178,10 @@ SnakeGame.main = (function (graphics) {
             HIGH_SCORES.push(snake.score);
         }
         HIGH_SCORES.sort();
+        let highscoresDiv = document.getElementById('high-scores');
+        while(highscoresDiv.firstChild){
+            highscoresDiv.removeChild(highscoresDiv.firstChild);
+        }
         for(let score of HIGH_SCORES){
             console.log(score);
             s = document.createElement('li');
@@ -195,7 +199,7 @@ SnakeGame.main = (function (graphics) {
 
     //array shuffle from stack overflow (https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array)
     function arrayShuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
+        let currentIndex = array.length, temporaryValue, randomIndex;
 
         // While there remain elements to shuffle...
         while (0 !== currentIndex) {
@@ -217,9 +221,10 @@ SnakeGame.main = (function (graphics) {
     function getRandomInt(max) {
         return Math.floor(Math.random() * Math.floor(max));
     }
-
+    
     function clear_game() {
         SNAKES = [];
+        GAME_GRID = []
         window.removeEventListener('keydown', onKeyDown);
         GAME_OVER = false;
         let gameoverDiv = document.getElementById('gameover');
@@ -253,7 +258,6 @@ SnakeGame.main = (function (graphics) {
 
     function init() {
         clear_game();
-        GAME_GRID = []
         let grid_init = [];
         let num_blank_spaces = (GAME_HEIGHT * GAME_WIDTH) - NUM_APPLES - NUM_WALLS;//not factoring in snake len because I will add these in after shuffle
         for (i = 0; i < num_blank_spaces; i++) {
@@ -269,7 +273,7 @@ SnakeGame.main = (function (graphics) {
         grid_init = arrayShuffle(grid_init);
 
         for (i = 0; i < GAME_HEIGHT; i++) {
-            var row = [];
+            let row = [];
             for (j = 0; j < GAME_WIDTH; j++) {
                 row.push(grid_init.shift());
             }
@@ -324,7 +328,7 @@ SnakeGame.main = (function (graphics) {
     }
 
     function onKeyDown(e) {
-        // for (var snake of SNAKES) {
+        // for (let snake of SNAKES) {
         snake = SNAKES[0];//for testing
         if (e.keyCode === KeyEvent.DOM_VK_UP && snake.direction != DOWN) {
             // console.log('UP');
@@ -345,18 +349,15 @@ SnakeGame.main = (function (graphics) {
     function update() {
         if (!GAME_OVER) {
             updateScores();
-            for (var snake of SNAKES) {
+            for (let snake of SNAKES) {
                 snake.updatePosition();
-                // console.log(snake.position)
-
-                // console.log(snake.body.length)
             }
         }
     }
 
     function render() {
         graphics.clear();
-        graphics.context.save();
+        graphics.context.restore();
         graphics.drawBoard(GAME_GRID, { w: GAME_WIDTH, h: GAME_HEIGHT }, CELL_SIZE);
         graphics.context.restore();
     }

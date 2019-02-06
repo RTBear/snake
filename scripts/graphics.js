@@ -59,9 +59,9 @@ SnakeGame.graphics = (function () {
         // console.log('spec',spec)
         context.save();
 
-        context.strokeStyle = spec.strokeStyle ? spec.strokeStyle : 'rgba(0, 0, 111, 1)';
-        context.fillStyle = spec.fillStyle ? spec.fillStyle : 'rgba(0, 0, 255, 1)';
-        context.lineWidth = spec.lineWidth ? spec.lineWidth : 5;
+        context.strokeStyle = spec.strokeStyle != 'undefined' ? spec.strokeStyle : 'rgba(0, 0, 111, 1)';
+        context.fillStyle = spec.fillStyle != 'undefined' ? spec.fillStyle : 'rgba(0, 0, 255, 1)';
+        context.lineWidth = spec.lineWidth != 'undefined' ? spec.lineWidth : 5;
 
         var x = spec.x != 'undefined' ? spec.x : canvas.width / 4 + 0.5;
         var y = spec.y != 'undefined' ? spec.y : canvas.height / 4 + 0.5;
