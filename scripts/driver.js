@@ -136,42 +136,38 @@ SnakeGame.main = (function (graphics) {
             // console.log(snake.recentMoves)
             // console.log(performance.now() - g_lastTimeStamp)
             // let 
-            if (snake.recentMoves.length > 0) {
-                snake.setDirection(snake.recentMoves.shift());
-            }
-            if (snake.direction != null) {
-                let accumTime = (g_elapsedTime + snake.carryOver);
-                // console.log('elapsedTime:', g_elapsedTime)
-                // console.log('carryover:', snake.carryOver);
-                // console.log('accumtime:', accumTime);
-                // console.log(snake.moveRate)
-                if (accumTime >= snake.moveRate) {
-                    // console.log('move')
-                    console.log('tbm: ', performance.now() - last_move)
-                    snake.carryOver = accumTime - snake.moveRate;
-                    // console.log(snake.recentMoves)
-                    // console.log('-------------------------------------------------------------------')
-                    // console.log(snake.body)
-                    // exit()
 
-                    if (snake.direction == UP) {
-                        // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
-                        snake.setPositionY(snake.position.y - 1)
-                        // snake.setPositionX(Math.floor(snake.position.x))
-                    } else if (snake.direction == RIGHT) {
-                        snake.setPositionX(snake.position.x + 1)
-                        // snake.setPositionY(Math.floor(snake.position.y))
-                    } else if (snake.direction == DOWN) {
-                        snake.setPositionY(snake.position.y + 1)
-                        // snake.setPositionX(Math.floor(snake.position.x))
-                    } else if (snake.direction == LEFT) {
-                        snake.setPositionX(snake.position.x - 1)
-                        // snake.setPositionY(Math.floor(snake.position.y))
-                    }
-                    last_move = performance.now();
-                } else {
-                    snake.carryOver += g_elapsedTime;
+            let accumTime = (g_elapsedTime + snake.carryOver);
+            // console.log('elapsedTime:', g_elapsedTime)
+            // console.log('carryover:', snake.carryOver);
+            // console.log('accumtime:', accumTime);
+            // console.log(snake.moveRate)
+            if (accumTime >= snake.moveRate) {
+                // console.log('move')
+                console.log('tbm: ', performance.now() - last_move)
+                snake.carryOver = accumTime - snake.moveRate;
+
+                if (snake.recentMoves.length > 0) {
+                    snake.setDirection(snake.recentMoves.shift());
                 }
+
+                if (snake.direction == UP) {
+                    // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
+                    snake.setPositionY(snake.position.y - 1)
+                    // snake.setPositionX(Math.floor(snake.position.x))
+                } else if (snake.direction == RIGHT) {
+                    snake.setPositionX(snake.position.x + 1)
+                    // snake.setPositionY(Math.floor(snake.position.y))
+                } else if (snake.direction == DOWN) {
+                    snake.setPositionY(snake.position.y + 1)
+                    // snake.setPositionX(Math.floor(snake.position.x))
+                } else if (snake.direction == LEFT) {
+                    snake.setPositionX(snake.position.x - 1)
+                    // snake.setPositionY(Math.floor(snake.position.y))
+                }
+                last_move = performance.now();
+            } else {
+                snake.carryOver += g_elapsedTime;
             }
         }
         return snake;
