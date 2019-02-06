@@ -401,14 +401,14 @@ SnakeGame.main = (function (graphics) {
         graphics.context.restore();
     }
 
-    function gameLoop() {
+    function gameLoop(timestamp) {
         if (!GAME_OVER) {
-            g_elapsedTime = performance.now() - g_lastTimeStamp;
+            g_elapsedTime = timestamp - g_lastTimeStamp;
             // console.log('---',g_elapsedTime)
             update();
             render();
 
-            g_lastTimeStamp = performance.now();
+            g_lastTimeStamp = timestamp;
             requestAnimationFrame(gameLoop);
         }
     }
