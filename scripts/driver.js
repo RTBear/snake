@@ -1,6 +1,5 @@
 SnakeGame.main = (function (graphics) {
     //general globals
-    var g_highScores = document.getElementById('high-scores');
     var g_newGameBtn = document.getElementById('newgame');
     var g_lastTimeStamp = window.performance.now();
     var g_elapsedTime = 0;
@@ -40,23 +39,23 @@ SnakeGame.main = (function (graphics) {
     var Snake = function (spec) {
         let snake = {};
 
-        console.log('spec',spec)
+        console.log('spec', spec)
         console.log(spec.position.x, spec.position.y)
         //"getters"
         snake.strokeColor = spec.strokeColor;
         snake.fillColor = spec.fillColor;
-        snake.direction = spec.direction;
+        var direction = spec.direction;
         snake.moveRate = spec.moveRate;
         snake.recentMoves = [];
         snake.growCounter = 0; //TODO: I realize now that if this was let growCounter (instead of snake.growCounter) it could be private... then i just return an object with the public variables/functions.
-        snake.score = 0;
+        let score = 0;
 
         snake.position = {//position of HEAD
             x: spec.position.x,
             y: spec.position.y
         }
 
-        snake.body = [];//array of snake segments
+        let body = [];//array of snake segments
 
         snake.checkNextMove = function (move) {
             // console.log('next: ',GAME_GRID[x][y].content)
@@ -67,7 +66,7 @@ SnakeGame.main = (function (graphics) {
                 gameover();
             } else if (GAME_GRID[x][y].content == 'apple') {
                 snake.growCounter += APPLE_INCR_LEN;
-                snake.score += APPLE_INCR_LEN;
+                score += APPLE_INCR_LEN;
 
                 generateApple();
             }
@@ -81,15 +80,15 @@ SnakeGame.main = (function (graphics) {
             snake.checkNextMove(nextMove);
             if (!GAME_OVER) {
 
-                snake.body.push(nextMove);
+                body.push(nextMove);
 
                 // console.log(pos, pos / CELL_SIZE)
                 if (snake.growCounter <= 0) {
-                    let tail = snake.body[0];
-                    // console.log(snake.body);
+                    let tail = body[0];
+                    // console.log(body);
                     // exit();
                     GAME_GRID[tail.x][tail.y].content = 'empty';
-                    snake.body.shift();
+                    body.shift();
                 } else if (snake.growCounter > 0) {
                     snake.growCounter--;
                 }
@@ -104,22 +103,22 @@ SnakeGame.main = (function (graphics) {
             snake.checkNextMove(nextMove);
             if (!GAME_OVER) {
 
-                snake.body.push(nextMove);
+                body.push(nextMove);
                 // console.log(pos, pos / CELL_SIZE)
                 if (snake.growCounter <= 0) {
-                    let tail = snake.body[0];
-                    // console.log(snake.body);
+                    let tail = body[0];
+                    // console.log(body);
                     // exit();
                     GAME_GRID[tail.x][tail.y].content = 'empty';
-                    snake.body.shift();
+                    body.shift();
                 } else if (snake.growCounter > 0) {
                     snake.growCounter--;
                 }
                 GAME_GRID[snake.position.x][snake.position.y].content = 'snake';
             }
         }
-        snake.setDirection = function (dir) { snake.direction = dir; }
-        snake.setRecentMoves = function (dir) {
+        snake.setDirection = function (dir) { direction = dir; }
+        function setRecentMoves(dir) {
             snake.recentMoves.push(dir);
             if (snake.recentMoves.length > MOVE_BUFFER_LEN) {
                 snake.recentMoves.shift();
@@ -127,7 +126,7 @@ SnakeGame.main = (function (graphics) {
         }
 
         snake.carryOver = 0;
-        snake.updatePosition = function (expand) {
+        function updatePosition(expand) {
             // console.log(snake.recentMoves)
             accumTime = (g_elapsedTime + snake.carryOver);
             // console.log('elapsedTime:', g_elapsedTime)
@@ -138,23 +137,23 @@ SnakeGame.main = (function (graphics) {
                 if (snake.recentMoves.length > 0) {
                     snake.setDirection(snake.recentMoves.shift());
                     console.log('-------------------------------------------------------------------')
-                    console.log(snake.body)
+                    console.log(body)
                     // exit()
                 } else {
                     // console.log('NOOOOOO');
                 }
 
-                if (snake.direction == UP) {
+                if (direction == UP) {
                     // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
                     snake.setPositionY(snake.position.y - 1)
                     // snake.setPositionX(Math.floor(snake.position.x))
-                } else if (snake.direction == RIGHT) {
+                } else if (direction == RIGHT) {
                     snake.setPositionX(snake.position.x + 1)
                     // snake.setPositionY(Math.floor(snake.position.y))
-                } else if (snake.direction == DOWN) {
+                } else if (direction == DOWN) {
                     snake.setPositionY(snake.position.y + 1)
                     // snake.setPositionX(Math.floor(snake.position.x))
-                } else if (snake.direction == LEFT) {
+                } else if (direction == LEFT) {
                     snake.setPositionX(snake.position.x - 1)
                     // snake.setPositionY(Math.floor(snake.position.y))
                 }
@@ -162,79 +161,92 @@ SnakeGame.main = (function (graphics) {
                 snake.carryOver += g_elapsedTime;
             }
         }
-        return snake;
+        // return snake;
+        return {
+            score: score,
+            setRecentMoves: setRecentMoves,
+            direction: direction,
+            updatePosition: updatePosition,
+            body: body
+        }
     }
 
-    function gameover() {
-        GAME_OVER = true;
-        let gameoverDiv = document.getElementById('gameover');
-        gameoverDiv.classList.remove('hidden');
-        updateHighScores();
-    }
-
-    function updateHighScores(){
-        for(let snake of SNAKES){
+    
+    function updateHighScores() {
+        for (let snake of SNAKES) {
             console.log(snake)
             HIGH_SCORES.push(snake.score);
         }
         HIGH_SCORES.sort();
         let highscoresDiv = document.getElementById('high-scores');
-        while(highscoresDiv.firstChild){
+        while (highscoresDiv.firstChild) {
             highscoresDiv.removeChild(highscoresDiv.firstChild);
         }
-        for(let score of HIGH_SCORES){
+        for (let score of HIGH_SCORES) {
             console.log(score);
             s = document.createElement('li');
-            s.appendChild(document.createTextNode(''+score));
+            s.appendChild(document.createTextNode('' + score));
             document.getElementById('high-scores').appendChild(s);
         }
     }
-
+    
     function updateScores() {
         let scoreDiv = document.getElementById('scores');
         for (let snake of SNAKES) {
             scoreDiv.innerHTML = '<p class="text-center">Score: <span id="score">' + snake.score + '</span></p>'
         }
     }
-
+    
     //array shuffle from stack overflow (https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array)
     function arrayShuffle(array) {
         let currentIndex = array.length, temporaryValue, randomIndex;
-
+        
         // While there remain elements to shuffle...
         while (0 !== currentIndex) {
-
+            
             // Pick a remaining element...
             randomIndex = Math.floor(Math.random() * currentIndex);
             currentIndex -= 1;
-
+            
             // And swap it with the current element.
             temporaryValue = array[currentIndex];
             array[currentIndex] = array[randomIndex];
             array[randomIndex] = temporaryValue;
         }
-
+        
         return array;
     }
-
+    
     //from the mdn docs (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random)
     function getRandomInt(max) {
         return Math.floor(Math.random() * Math.floor(max));
     }
     
-    function clear_game() {
-        SNAKES = [];
-        GAME_GRID = []
-        window.removeEventListener('keydown', onKeyDown);
-        GAME_OVER = false;
+    function gameover() {
+        GAME_OVER = true;
         let gameoverDiv = document.getElementById('gameover');
-        gameoverDiv.classList.add('hidden');
+        gameoverDiv.classList.remove('hidden');
+        updateHighScores();
     }
-
-    function generateApple() {
-        let x = getRandomInt(GAME_WIDTH);
-        let y = getRandomInt(GAME_HEIGHT);
-
+    
+    function clear_game() {
+        let len = SNAKES.length;
+        // for(let i=0;i<len;i++){
+            //     SNAKES[i] = null;
+            // }
+            SNAKES = null;
+            SNAKES = [];
+            GAME_GRID = null;
+            window.removeEventListener('keydown', onKeyDown);
+            GAME_OVER = false;
+            let gameoverDiv = document.getElementById('gameover');
+            gameoverDiv.classList.add('hidden');
+        }
+        
+        function generateApple() {
+            let x = getRandomInt(GAME_WIDTH);
+            let y = getRandomInt(GAME_HEIGHT);
+            
         let insert_tolerance = 15;
         while (GAME_GRID[x][y].content != 'empty') {
             x = getRandomInt(GAME_WIDTH);
@@ -259,6 +271,7 @@ SnakeGame.main = (function (graphics) {
     function init() {
         clear_game();
         let grid_init = [];
+        GAME_GRID = [];
         let num_blank_spaces = (GAME_HEIGHT * GAME_WIDTH) - NUM_APPLES - NUM_WALLS;//not factoring in snake len because I will add these in after shuffle
         for (i = 0; i < num_blank_spaces; i++) {
             grid_init.push({ content: 'empty' });
@@ -279,6 +292,7 @@ SnakeGame.main = (function (graphics) {
             }
             GAME_GRID.push(row);
         }
+        grid_init = null;
         // console.log(GAME_GRID)
 
         //place snake in after shuffle so it easier to keep track of :)
@@ -298,7 +312,7 @@ SnakeGame.main = (function (graphics) {
         // console.log(getRandomInt(GAME_WIDTH));
         if (num_blank_spaces < 1) {
             console.log('Not enough space on board for snake.');
-            exit();
+            process.exit();
         }
         let insert_tolerance = 15;
         while (GAME_GRID[p1.position.x][p1.position.y].content != 'empty') {
@@ -328,22 +342,24 @@ SnakeGame.main = (function (graphics) {
     }
 
     function onKeyDown(e) {
-        // for (let snake of SNAKES) {
-        snake = SNAKES[0];//for testing
-        if (e.keyCode === KeyEvent.DOM_VK_UP && snake.direction != DOWN) {
-            // console.log('UP');
-            snake.setRecentMoves(UP);
-        } else if (e.keyCode === KeyEvent.DOM_VK_RIGHT && snake.direction != LEFT) {
-            // console.log('RIGHT');
-            snake.setRecentMoves(RIGHT);
-        } else if (e.keyCode === KeyEvent.DOM_VK_DOWN && snake.direction != UP) {
-            // console.log('DOWN');
-            snake.setRecentMoves(DOWN);
-        } else if (e.keyCode === KeyEvent.DOM_VK_LEFT && snake.direction != RIGHT) {
-            // console.log('LEFT');
-            snake.setRecentMoves(LEFT);
+        for (let snake of SNAKES) {
+            // let snake = SNAKES[0];//for testing
+            console.log(snake);
+            console.log(snake.direction)
+            if (e.keyCode === KeyEvent.DOM_VK_UP && snake.direction != DOWN) {
+                // console.log('UP');
+                snake.setRecentMoves(UP);
+            } else if (e.keyCode === KeyEvent.DOM_VK_RIGHT && snake.direction != LEFT) {
+                // console.log('RIGHT');
+                snake.setRecentMoves(RIGHT);
+            } else if (e.keyCode === KeyEvent.DOM_VK_DOWN && snake.direction != UP) {
+                // console.log('DOWN');
+                snake.setRecentMoves(DOWN);
+            } else if (e.keyCode === KeyEvent.DOM_VK_LEFT && snake.direction != RIGHT) {
+                // console.log('LEFT');
+                snake.setRecentMoves(LEFT);
+            }
         }
-        // }
     }
 
     function update() {
@@ -357,7 +373,7 @@ SnakeGame.main = (function (graphics) {
 
     function render() {
         graphics.clear();
-        graphics.context.restore();
+        graphics.context.save();
         graphics.drawBoard(GAME_GRID, { w: GAME_WIDTH, h: GAME_HEIGHT }, CELL_SIZE);
         graphics.context.restore();
     }
