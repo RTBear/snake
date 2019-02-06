@@ -61,7 +61,6 @@ SnakeGame.main = (function (graphics) {
             x = move.x;
             y = move.y;
             if (x < 0 || y < 0 || x >= GAME_WIDTH || y >= GAME_HEIGHT || GAME_GRID[x][y].content == 'wall' || GAME_GRID[x][y].content == 'snake') {
-                console.log('GAME OVER');
                 gameover();
             } else if (GAME_GRID[x][y].content == 'apple') {
                 snake.growCounter += APPLE_INCR_LEN;
@@ -146,7 +145,6 @@ SnakeGame.main = (function (graphics) {
 
     function updateHighScores() {
         for (let snake of SNAKES) {
-            console.log(snake)
             HIGH_SCORES.push(snake.score);
         }
         HIGH_SCORES.sort(function (a, b) { return a - b; });//default sort is alphabetical
@@ -156,7 +154,6 @@ SnakeGame.main = (function (graphics) {
             highscoresDiv.removeChild(highscoresDiv.firstChild);
         }
         for (let score of HIGH_SCORES) {
-            console.log(score);
             s = document.createElement('li');
             s.appendChild(document.createTextNode('' + score));
             document.getElementById('high-scores').appendChild(s);
