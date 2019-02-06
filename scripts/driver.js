@@ -24,9 +24,11 @@ SnakeGame.main = (function (graphics) {
 
 
     //gameplay globals
-    var SNAKES = []//array of snake objects
+    var SNAKES = [];//array of snake objects
     // var APPLES = []//array of apple objects
-    var GAME_GRID = null
+    var GAME_GRID = null;
+    var GAME_OVER = false;
+    var HIGH_SCORES = [];
 
     //directions
     const UP = 'up';
@@ -39,7 +41,7 @@ SnakeGame.main = (function (graphics) {
         var snake = {};
 
         console.log(spec)
-        console.log(spec.position.x,spec.position.y)
+        console.log(spec.position.x, spec.position.y)
         //"getters"
         snake.strokeColor = spec.strokeColor;
         snake.fillColor = spec.fillColor;
@@ -56,14 +58,14 @@ SnakeGame.main = (function (graphics) {
 
         snake.body = [];//array of snake segments
 
-        snake.checkNextMove = function(move){
+        snake.checkNextMove = function (move) {
             // console.log('next: ',GAME_GRID[x][y].content)
             x = move.x;
             y = move.y;
-            if(x < 0 || y < 0 || x >= GAME_WIDTH || y >= GAME_HEIGHT || GAME_GRID[x][y].content == 'wall' || GAME_GRID[x][y].content == 'snake'){
-                //gameover
+            if (x < 0 || y < 0 || x >= GAME_WIDTH || y >= GAME_HEIGHT || GAME_GRID[x][y].content == 'wall' || GAME_GRID[x][y].content == 'snake') {
                 console.log('GAME OVER');
-            }else if(GAME_GRID[x][y].content == 'apple'){
+                gameover();
+            } else if (GAME_GRID[x][y].content == 'apple') {
                 snake.growCounter += APPLE_INCR_LEN;
                 snake.score += APPLE_INCR_LEN;
 
@@ -75,42 +77,46 @@ SnakeGame.main = (function (graphics) {
         snake.setPositionX = function (pos) {
             let oldPos = snake.position.x;
             snake.position.x = pos;
-            let nextMove = {x:snake.position.x,y:snake.position.y};
+            let nextMove = { x: snake.position.x, y: snake.position.y };
             snake.checkNextMove(nextMove);
-            
-            snake.body.push(nextMove);
+            if (!GAME_OVER) {
 
-            // console.log(pos, pos / CELL_SIZE)
-            if(snake.growCounter <= 0){
-                let tail = snake.body[0];
-                // console.log(snake.body);
-                // exit();
-                GAME_GRID[tail.x][tail.y].content = 'empty';
-                snake.body.shift();
-            }else if(snake.growCounter > 0){
-                snake.growCounter--;
+                snake.body.push(nextMove);
+
+                // console.log(pos, pos / CELL_SIZE)
+                if (snake.growCounter <= 0) {
+                    let tail = snake.body[0];
+                    // console.log(snake.body);
+                    // exit();
+                    GAME_GRID[tail.x][tail.y].content = 'empty';
+                    snake.body.shift();
+                } else if (snake.growCounter > 0) {
+                    snake.growCounter--;
+                }
+                GAME_GRID[snake.position.x][snake.position.y].content = 'snake';
             }
-            GAME_GRID[snake.position.x][snake.position.y].content = 'snake';
 
         }
         snake.setPositionY = function (pos) {
             let oldPos = snake.position.y;
             snake.position.y = pos;
-            let nextMove = {x:snake.position.x,y:snake.position.y};
+            let nextMove = { x: snake.position.x, y: snake.position.y };
             snake.checkNextMove(nextMove);
+            if (!GAME_OVER) {
 
-            snake.body.push(nextMove);
-            // console.log(pos, pos / CELL_SIZE)
-            if(snake.growCounter <= 0){
-                let tail = snake.body[0];
-                // console.log(snake.body);
-                // exit();
-                GAME_GRID[tail.x][tail.y].content = 'empty';
-                snake.body.shift();
-            }else if(snake.growCounter > 0){
-                snake.growCounter--;
+                snake.body.push(nextMove);
+                // console.log(pos, pos / CELL_SIZE)
+                if (snake.growCounter <= 0) {
+                    let tail = snake.body[0];
+                    // console.log(snake.body);
+                    // exit();
+                    GAME_GRID[tail.x][tail.y].content = 'empty';
+                    snake.body.shift();
+                } else if (snake.growCounter > 0) {
+                    snake.growCounter--;
+                }
+                GAME_GRID[snake.position.x][snake.position.y].content = 'snake';
             }
-            GAME_GRID[snake.position.x][snake.position.y].content = 'snake';
         }
         snake.setDirection = function (dir) { snake.direction = dir; }
         snake.setRecentMoves = function (dir) {
@@ -134,10 +140,10 @@ SnakeGame.main = (function (graphics) {
                     console.log('-------------------------------------------------------------------')
                     console.log(snake.body)
                     // exit()
-                }else{
+                } else {
                     // console.log('NOOOOOO');
                 }
-                
+
                 if (snake.direction == UP) {
                     // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
                     snake.setPositionY(snake.position.y - 1)
@@ -159,10 +165,31 @@ SnakeGame.main = (function (graphics) {
         return snake;
     }
 
-    function updateScores(){
-        let scoreDiv = document.getElementById('scores');
+    function gameover() {
+        GAME_OVER = true;
+        let gameoverDiv = document.getElementById('gameover');
+        gameoverDiv.classList.remove('hidden');
+        updateHighScores();
+    }
+
+    function updateHighScores(){
         for(let snake of SNAKES){
-            scoreDiv.innerHTML = '<p class="text-center">Score: <span id="score">'+snake.score+'</span></p>'
+            console.log(snake)
+            HIGH_SCORES.push(snake.score);
+        }
+        HIGH_SCORES.sort();
+        for(let score of HIGH_SCORES){
+            console.log(score);
+            s = document.createElement('li');
+            s.appendChild(document.createTextNode(''+score));
+            document.getElementById('high-scores').appendChild(s);
+        }
+    }
+
+    function updateScores() {
+        let scoreDiv = document.getElementById('scores');
+        for (let snake of SNAKES) {
+            scoreDiv.innerHTML = '<p class="text-center">Score: <span id="score">' + snake.score + '</span></p>'
         }
     }
 
@@ -194,9 +221,12 @@ SnakeGame.main = (function (graphics) {
     function clear_game() {
         SNAKES = [];
         window.removeEventListener('keydown', onKeyDown);
+        GAME_OVER = false;
+        let gameoverDiv = document.getElementById('gameover');
+        gameoverDiv.classList.add('hidden');
     }
 
-    function generateApple(){
+    function generateApple() {
         let x = getRandomInt(GAME_WIDTH);
         let y = getRandomInt(GAME_HEIGHT);
 
@@ -287,7 +317,7 @@ SnakeGame.main = (function (graphics) {
 
         GAME_GRID[p1.position.x][p1.position.y].content = 'snake';
         SNAKES.push(Snake(p1));
-        SNAKES[0].body.push({x:p1.position.x,y:p1.position.y});
+        SNAKES[0].body.push({ x: p1.position.x, y: p1.position.y });
 
         window.addEventListener('keydown', onKeyDown);
         requestAnimationFrame(gameLoop);
@@ -313,17 +343,20 @@ SnakeGame.main = (function (graphics) {
     }
 
     function update() {
-        updateScores();
-        for (var snake of SNAKES) {
-            snake.updatePosition();
-            // console.log(snake.position)
+        if (!GAME_OVER) {
+            updateScores();
+            for (var snake of SNAKES) {
+                snake.updatePosition();
+                // console.log(snake.position)
 
-            // console.log(snake.body.length)
+                // console.log(snake.body.length)
+            }
         }
     }
 
     function render() {
         graphics.clear();
+        graphics.context.save();
         graphics.drawBoard(GAME_GRID, { w: GAME_WIDTH, h: GAME_HEIGHT }, CELL_SIZE);
         graphics.context.restore();
     }
