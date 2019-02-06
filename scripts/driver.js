@@ -36,6 +36,9 @@ SnakeGame.main = (function (graphics) {
     const LEFT = 'left';
 
 
+    let last_move = null;
+
+
     var Snake = function (spec) {
         let snake = {};
 
@@ -130,22 +133,26 @@ SnakeGame.main = (function (graphics) {
         snake.carryOver = 0;
         snake.updatePosition = function () {
             // console.log(snake.recentMoves)
+            // console.log(performance.now() - g_lastTimeStamp)
+            // let 
             accumTime = (g_elapsedTime + snake.carryOver);
             // console.log('elapsedTime:', g_elapsedTime)
             // console.log('carryover:', snake.carryOver);
             // console.log('accumtime:', accumTime);
             if (accumTime >= snake.moveRate) {
+                console.log('move')
+                console.log('tbm: ',performance.now() - last_move)
                 snake.carryOver -= snake.moveRate;
                 if (snake.recentMoves.length > 0) {
                     // console.log(snake.recentMoves)
                     snake.setDirection(snake.recentMoves.shift());
-                    console.log('-------------------------------------------------------------------')
-                    console.log(snake.body)
+                    // console.log('-------------------------------------------------------------------')
+                    // console.log(snake.body)
                     // exit()
                 } else {
                     // console.log('NOOOOOO');
                 }
-
+                
                 if (snake.direction == UP) {
                     // console.log(snake.position.y - (snake.moveRate * g_elapsedTime))
                     snake.setPositionY(snake.position.y - 1)
@@ -163,10 +170,11 @@ SnakeGame.main = (function (graphics) {
             } else {
                 snake.carryOver += g_elapsedTime;
             }
+            last_move = performance.now();
         }
         return snake;
         // return {
-        //     score: score,
+            //     score: score,
         //     setRecentMoves: setRecentMoves,
         //     direction: direction,
         //     updatePosition: updatePosition,
@@ -180,7 +188,7 @@ SnakeGame.main = (function (graphics) {
             console.log(snake)
             HIGH_SCORES.push(snake.score);
         }
-        HIGH_SCORES.sort(function(a,b){return a-b;});//default sort is alphabetical
+        HIGH_SCORES.sort(function (a, b) { return a - b; });//default sort is alphabetical
         HIGH_SCORES.reverse();
         let highscoresDiv = document.getElementById('high-scores');
         while (highscoresDiv.firstChild) {
@@ -197,7 +205,7 @@ SnakeGame.main = (function (graphics) {
     function updateScores() {
         let scoreDiv = document.getElementById('scores');
         for (let snake of SNAKES) {
-            scoreDiv.innerHTML = '<p class="text-center">Score: <span id="score">' + snake.score + '</span></p>'
+            scoreDiv.innerHTML = '<p class="text-center">Current Score: <span id="score">' + snake.score + '</span></p>'
         }
     }
 
@@ -320,7 +328,7 @@ SnakeGame.main = (function (graphics) {
                 x: getRandomInt(GAME_WIDTH),
                 y: getRandomInt(GAME_HEIGHT)
             },
-            moveRate: 150 / (MOVE_SPEED * 10)
+            moveRate: 150 / (1000*MOVE_SPEED) // 150/speed milliseconds between movements
 
         }
         console.log('gg', GAME_GRID[p1.position.x][p1.position.y])
@@ -378,10 +386,10 @@ SnakeGame.main = (function (graphics) {
     }
 
     function update() {
-        updateScores();
         for (let snake of SNAKES) {
             snake.updatePosition();
         }
+        updateScores();
     }
 
     function render() {
@@ -393,11 +401,12 @@ SnakeGame.main = (function (graphics) {
 
     function gameLoop() {
         if (!GAME_OVER) {
-        g_elapsedTime = performance.now() - g_lastTimeStamp;
-        update();
-        render();
+            g_elapsedTime = performance.now() - g_lastTimeStamp;
+            // console.log('---',g_elapsedTime)
+            update();
+            render();
 
-        g_lastTimeStamp = performance.now();
+            g_lastTimeStamp = performance.now();
             requestAnimationFrame(gameLoop);
         }
     }

@@ -18,13 +18,16 @@
     <div class="row">
 
         <div id="main-content" class="col-xs-9">
-                <div id="gameover" class="hidden"><div class="text-center">GAME<br>OVER<p></p></div></div>
-            <canvas id="game-canvas" width="500" height="500"></canvas>
-            <div id="scores">
-                <!-- <p class="text-center">Score: <span id="score">0</span></p> -->
+            <div id="gameover" class="hidden">
+                <div class="text-center">GAME<br>OVER<p></p>
+                </div>
             </div>
+            <canvas id="game-canvas" width="500" height="500"></canvas>
         </div>
         <div id="side-content" class="col-xs-3">
+            <div id="scores">
+                <p>&nbsp;</p>
+            </div>
             <h2>High Scores</h2>
             <div class="well">
                 <ol id="high-scores">
@@ -43,7 +46,7 @@
     <script src="./scripts/input.js"></script>
     <script src="./scripts/graphics.js"></script>
     <script src="./scripts/driver.js"></script>
-    
+
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
