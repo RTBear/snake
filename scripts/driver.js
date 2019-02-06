@@ -145,7 +145,7 @@ SnakeGame.main = (function (graphics) {
             if (accumTime >= snake.moveRate) {
                 // console.log('move')
                 console.log('tbm: ', performance.now() - last_move)
-                snake.carryOver = accumTime - snake.moveRate;
+                snake.carryOver -= snake.moveRate;
 
                 if (snake.recentMoves.length > 0) {
                     snake.setDirection(snake.recentMoves.shift());
@@ -269,18 +269,17 @@ SnakeGame.main = (function (graphics) {
         for (let i = 0; i < len; i++) {
             SNAKES[i] = null;
         }
+
+        // if (GAME_GRID != null) {
+        //     for (let i = 0; i < GAME_WIDTH; i++) {
+        //         for (let j = 0; j < GAME_HEIGHT; j++) {
+        //             GAME_GRID[i][j] = null;
+        //         }
+        //         // GAME_GRID[i] = null;
+        //     }
+        // }
+
         SNAKES = null;
-        SNAKES = [];
-
-        if (GAME_GRID != null) {
-            for (let i = 0; i < GAME_WIDTH; i++) {
-                for (let j = 0; j < GAME_HEIGHT; j++) {
-                    GAME_GRID[i][j] = null;
-                }
-                // GAME_GRID[i] = null;
-            }
-        }
-
         GAME_GRID = null;
         window.removeEventListener('keydown', onKeyDown);
         GAME_OVER = false;
@@ -292,6 +291,7 @@ SnakeGame.main = (function (graphics) {
     function init() {
         clear_game();
         let grid_init = [];
+        SNAKES = [];
         GAME_GRID = [];
         let num_blank_spaces = (GAME_HEIGHT * GAME_WIDTH) - NUM_APPLES - NUM_WALLS;//not factoring in snake len because I will add these in after shuffle
         for (let i = 0; i < num_blank_spaces; i++) {
